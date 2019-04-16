@@ -1,6 +1,8 @@
 package com.mapbox.mapboxandroiddemo.account;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -21,9 +23,11 @@ import com.mapbox.mapboxandroiddemo.MainActivity;
 import com.mapbox.mapboxandroiddemo.R;
 
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_CREATE_ACCOUNT_BUTTON;
+import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_DO_NOT_ASK_AGAIN_BUTTON;
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_SIGN_IN_BUTTON;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.AUTHCODE_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.CLIENT_ID_KEY;
+import static com.mapbox.mapboxandroiddemo.commons.StringConstants.LOGIN_SIGNIN_IGNORE_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.REDIRECT_URI_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.TOKEN_SAVED_KEY;
 
@@ -37,6 +41,7 @@ public class LandingActivity extends AppCompatActivity {
   private static final String CLIENT_ID = "7bb34a0cf68455d33ec0d994af2330a3f60ee636";
   private static final String REDIRECT_URI = "mapbox-android-dev-preview://authorize";
   private boolean loggedIn;
+  private boolean alreadyIgnoredLandingAsk;
   private AnalyticsTracker analytics;
 
 
@@ -47,14 +52,16 @@ public class LandingActivity extends AppCompatActivity {
     loggedIn = PreferenceManager.getDefaultSharedPreferences(
       getApplicationContext())
       .getBoolean(TOKEN_SAVED_KEY, false);
+    alreadyIgnoredLandingAsk = PreferenceManager.getDefaultSharedPreferences(
+      getApplicationContext())
+      .getBoolean(LOGIN_SIGNIN_IGNORE_KEY, false);
+
     analytics = AnalyticsTracker.getInstance(this, false);
 
-
-    if (!loggedIn) {
+    if (!loggedIn && !alreadyIgnoredLandingAsk) {
       setContentView(R.layout.activity_landing);
       getSupportActionBar().hide();
       buildAccountAuthUrl();
-      setUpSkipDialog();
       setUpButtons();
     } else {
       Intent intent = new Intent(this, MainActivity.class);
@@ -100,38 +107,35 @@ public class LandingActivity extends AppCompatActivity {
     customTabsIntent.launchUrl(this, Uri.parse(urlToVisit));
   }
 
-  private void setUpSkipDialog() {
-    Button skipForNowButton = (Button) findViewById(R.id.button_skip_for_now);
-    skipForNowButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
-      }
+  private void setUpButtons() {
+    findViewById(R.id.button_skip_for_now).setOnClickListener(view -> {
+      goToMainActivity();
+    });
+
+    findViewById(R.id.create_account_button).setOnClickListener(view -> {
+      openChromeCustomTab(true);
+      analytics.trackEvent(CLICKED_ON_CREATE_ACCOUNT_BUTTON,
+        loggedIn);
+    });
+
+    findViewById(R.id.sign_in_button).setOnClickListener(view -> {
+      openChromeCustomTab(false);
+      analytics.trackEvent(CLICKED_ON_SIGN_IN_BUTTON,
+        loggedIn);
+    });
+
+    findViewById(R.id.do_not_show_again_button).setOnClickListener(view -> {
+      PreferenceManager.getDefaultSharedPreferences(
+        getApplicationContext()).edit().putBoolean(LOGIN_SIGNIN_IGNORE_KEY, true).apply();
+      analytics.trackEvent(CLICKED_ON_DO_NOT_ASK_AGAIN_BUTTON,
+        loggedIn);
+      goToMainActivity();
     });
   }
 
-  private void setUpButtons() {
-    Button createAccountButton = (Button) findViewById(R.id.create_account_button);
-    createAccountButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        openChromeCustomTab(true);
-        analytics.trackEvent(CLICKED_ON_CREATE_ACCOUNT_BUTTON,
-          loggedIn);
-      }
-    });
-
-    Button signInButton = (Button) findViewById(R.id.sign_in_button);
-    signInButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        openChromeCustomTab(false);
-        analytics.trackEvent(CLICKED_ON_SIGN_IN_BUTTON,
-          loggedIn)
-        ;
-      }
-    });
+  private void goToMainActivity() {
+    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+    startActivity(intent);
   }
 
   private void showErrorDialog() {
@@ -141,12 +145,7 @@ public class LandingActivity extends AppCompatActivity {
       .setHeaderColor(R.color.mapboxRedDark)
       .withDivider(true)
       .setPositiveText(getString(R.string.whoops_error_dialog_ok_positive_button))
-      .onPositive(new MaterialDialog.SingleButtonCallback() {
-        @Override
-        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-          dialog.dismiss();
-        }
-      })
+      .onPositive((dialog, which) -> dialog.dismiss())
       .show();
   }
 
