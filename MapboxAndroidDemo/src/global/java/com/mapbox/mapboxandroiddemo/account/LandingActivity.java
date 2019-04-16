@@ -1,32 +1,26 @@
 package com.mapbox.mapboxandroiddemo.account;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.firebase.perf.metrics.AddTrace;
-import com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
+import com.google.firebase.perf.metrics.AddTrace;
 import com.mapbox.mapboxandroiddemo.MainActivity;
 import com.mapbox.mapboxandroiddemo.R;
+import com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker;
 
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_CREATE_ACCOUNT_BUTTON;
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_DO_NOT_ASK_AGAIN_BUTTON;
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_SIGN_IN_BUTTON;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.AUTHCODE_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.CLIENT_ID_KEY;
+import static com.mapbox.mapboxandroiddemo.commons.StringConstants.FROM_LOG_OUT_BUTTON_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.LOGIN_SIGNIN_IGNORE_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.REDIRECT_URI_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.TOKEN_SAVED_KEY;
@@ -58,6 +52,10 @@ public class LandingActivity extends AppCompatActivity {
 
     analytics = AnalyticsTracker.getInstance(this, false);
 
+    if (getIntent().getBooleanExtra(FROM_LOG_OUT_BUTTON_KEY, false)) {
+      alreadyIgnoredLandingAsk = false;
+    }
+
     if (!loggedIn && !alreadyIgnoredLandingAsk) {
       setContentView(R.layout.activity_landing);
       getSupportActionBar().hide();
@@ -77,9 +75,9 @@ public class LandingActivity extends AppCompatActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    if (getIntent().getBooleanExtra("FROM_LOG_OUT_BUTTON", false)) {
+    if (getIntent().getBooleanExtra(FROM_LOG_OUT_BUTTON_KEY, false)) {
       Toast.makeText(getApplicationContext(), R.string.log_out_toast_confirm, Toast.LENGTH_LONG).show();
-    } else if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {
+    } else if (getIntent().getAction() != null && getIntent().getAction().equals(Intent.ACTION_VIEW)) {
       Uri uri = getIntent().getData();
       String error = uri.getQueryParameter("error");
       if (error != null) {

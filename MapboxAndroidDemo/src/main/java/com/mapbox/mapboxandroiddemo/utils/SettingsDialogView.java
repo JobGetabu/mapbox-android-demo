@@ -14,12 +14,15 @@ import com.mapbox.mapboxandroiddemo.R;
 import com.mapbox.mapboxandroiddemo.account.LandingActivity;
 import com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker;
 
+import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_ACCOUNT_CREATION_OR_LOGIN_BUTTON;
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.LOGGED_OUT_OF_MAPBOX_ACCOUNT;
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.OPTED_IN_TO_ANALYTICS;
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.OPTED_OUT_OF_ANALYTICS;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.AVATAR_IMAGE_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.EMAIL_KEY;
+import static com.mapbox.mapboxandroiddemo.commons.StringConstants.FROM_ACCOUNT_LOGIN_OR_CREATION_BUTTON_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.FROM_LOG_OUT_BUTTON_KEY;
+import static com.mapbox.mapboxandroiddemo.commons.StringConstants.LOGIN_SIGNIN_IGNORE_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.TOKEN_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.TOKEN_SAVED_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.USERNAME_KEY;
@@ -90,8 +93,21 @@ public class SettingsDialogView {
     sharePrefEditor.putString(AVATAR_IMAGE_KEY, "");
     sharePrefEditor.putString(TOKEN_KEY, "");
     sharePrefEditor.apply();
+    goToLandingActivity(FROM_LOG_OUT_BUTTON_KEY);
+  }
+
+  public void goToLandingActivityForAccountCreationOrLogIn(boolean loggedIn) {
+    analytics.trackEvent(CLICKED_ON_ACCOUNT_CREATION_OR_LOGIN_BUTTON, loggedIn);
+    SharedPreferences.Editor sharePrefEditor = PreferenceManager
+      .getDefaultSharedPreferences(context).edit();
+    sharePrefEditor.putBoolean(LOGIN_SIGNIN_IGNORE_KEY, false);
+    sharePrefEditor.apply();
+    goToLandingActivity(FROM_ACCOUNT_LOGIN_OR_CREATION_BUTTON_KEY);
+  }
+
+  private void goToLandingActivity(String stringExtraKey) {
     Intent intent = new Intent(context, LandingActivity.class);
-    intent.putExtra(FROM_LOG_OUT_BUTTON_KEY, true);
+    intent.putExtra(stringExtraKey, true);
     context.startActivity(intent);
   }
 }

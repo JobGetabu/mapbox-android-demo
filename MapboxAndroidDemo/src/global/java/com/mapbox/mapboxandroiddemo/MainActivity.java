@@ -85,12 +85,12 @@ import com.mapbox.mapboxandroiddemo.examples.labs.MagicWindowKotlinActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.MapFogBackgroundActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.MarkerFollowingRouteActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.PictureInPictureActivity;
-import com.mapbox.mapboxandroiddemo.examples.labs.ValueAnimatorIconAnimationActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.PulsingLayerOpacityColorActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.RecyclerViewOnMapActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.SnakingDirectionsRouteActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.SpaceStationLocationActivity;
 import com.mapbox.mapboxandroiddemo.examples.labs.SymbolLayerMapillaryActivity;
+import com.mapbox.mapboxandroiddemo.examples.labs.ValueAnimatorIconAnimationActivity;
 import com.mapbox.mapboxandroiddemo.examples.location.KotlinLocationComponentActivity;
 import com.mapbox.mapboxandroiddemo.examples.location.LocationComponentActivity;
 import com.mapbox.mapboxandroiddemo.examples.location.LocationComponentFragmentActivity;
@@ -417,15 +417,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     dialogView.buildDialog();
 
     Button logOutOfMapboxAccountButton = customView.findViewById(R.id.log_out_of_account_button);
+    Button loginIntoOrCreateAccountButton = customView.findViewById(R.id.login_or_create_account_button);
 
     if (!loggedIn) {
       logOutOfMapboxAccountButton.setVisibility(View.GONE);
+      loginIntoOrCreateAccountButton.setOnClickListener(view -> {
+        dialogView.goToLandingActivityForAccountCreationOrLogIn(loggedIn);
+      });
     } else {
-      logOutOfMapboxAccountButton.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          dialogView.logOut(loggedIn);
-        }
+      loginIntoOrCreateAccountButton.setVisibility(View.GONE);
+      logOutOfMapboxAccountButton.setOnClickListener(view -> {
+        dialogView.logOut(loggedIn);
       });
     }
   }
