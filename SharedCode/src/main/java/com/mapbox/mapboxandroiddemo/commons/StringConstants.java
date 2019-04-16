@@ -13,5 +13,5 @@ public class StringConstants {
   public static final String REDIRECT_URI_KEY = "REDIRECT_URI";
   public static final String CLIENT_ID_KEY = "CLIENT_ID";
   public static final String FROM_LOG_OUT_BUTTON_KEY = "FROM_LOG_OUT_BUTTON";
-  public static final String FROM_ACCOUNT_LOGIN_OR_CREATION_BUTTON_KEY = "FROM_ACCOUNT_LOGIN_OR_CREATION_BUTTON_KEY";
+  public static final String FROM_LOGIN_SCREEN_MENU_ITEM_KEY = "FROM_LOGIN_SCREEN_MENU_ITEM_KEY";
 }

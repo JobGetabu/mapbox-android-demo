@@ -13,21 +13,18 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="20dp"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="10dp"
         android:text="@string/analytics_opt_out_textview" />
 
-
-    <Button
-        android:id="@+id/login_or_create_account_button"
+    <Switch
+        android:id="@+id/login_or_create_account_switch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="20dp"
-        android:background="@color/mapboxGreen"
-        android:text="@string/login_or_signup_account_button"
-        android:textAllCaps="false"
-        android:textColor="@color/mapboxWhite" />
+        android:layout_marginBottom="40dp"
+        android:text="@string/login_or_signup_account_switch_text" />
 
     <Button
         android:id="@+id/log_out_of_account_button"

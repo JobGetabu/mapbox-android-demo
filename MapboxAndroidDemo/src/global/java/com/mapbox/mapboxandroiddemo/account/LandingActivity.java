@@ -20,6 +20,7 @@ import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_D
 import static com.mapbox.mapboxandroiddemo.commons.AnalyticsTracker.CLICKED_ON_SIGN_IN_BUTTON;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.AUTHCODE_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.CLIENT_ID_KEY;
+import static com.mapbox.mapboxandroiddemo.commons.StringConstants.FROM_LOGIN_SCREEN_MENU_ITEM_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.FROM_LOG_OUT_BUTTON_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.LOGIN_SIGNIN_IGNORE_KEY;
 import static com.mapbox.mapboxandroiddemo.commons.StringConstants.REDIRECT_URI_KEY;
@@ -56,7 +57,8 @@ public class LandingActivity extends AppCompatActivity {
       alreadyIgnoredLandingAsk = false;
     }
 
-    if (!loggedIn && !alreadyIgnoredLandingAsk) {
+    if (!loggedIn && !alreadyIgnoredLandingAsk || getIntent().getBooleanExtra(
+      FROM_LOGIN_SCREEN_MENU_ITEM_KEY, false)) {
       setContentView(R.layout.activity_landing);
       getSupportActionBar().hide();
       buildAccountAuthUrl();
