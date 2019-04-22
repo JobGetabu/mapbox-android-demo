@@ -7,6 +7,8 @@ import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
@@ -35,6 +37,7 @@ public class LandingActivity extends AppCompatActivity {
   private static String CREATE_ACCOUNT_AUTH_URL;
   private static final String CLIENT_ID = "7bb34a0cf68455d33ec0d994af2330a3f60ee636";
   private static final String REDIRECT_URI = "mapbox-android-dev-preview://authorize";
+  private static final String TAG = "LandingActivity";
   private boolean loggedIn;
   private boolean alreadyIgnoredLandingAsk;
   private AnalyticsTracker analytics;
@@ -44,9 +47,11 @@ public class LandingActivity extends AppCompatActivity {
   @AddTrace(name = "onCreateLandingActivity")
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
     loggedIn = PreferenceManager.getDefaultSharedPreferences(
       getApplicationContext())
       .getBoolean(TOKEN_SAVED_KEY, false);
+
     alreadyIgnoredLandingAsk = PreferenceManager.getDefaultSharedPreferences(
       getApplicationContext())
       .getBoolean(LOGIN_SIGNIN_IGNORE_KEY, false);
@@ -57,13 +62,20 @@ public class LandingActivity extends AppCompatActivity {
       alreadyIgnoredLandingAsk = false;
     }
 
+    Log.d(TAG, "onCreate: loggedIn = " + loggedIn);
+    Log.d(TAG, "onCreate: alreadyIgnoredLandingAsk = " + alreadyIgnoredLandingAsk);
+    Log.d(TAG, "onCreate: FROM_LOGIN_SCREEN_MENU_ITEM_KEY = " + getIntent().getBooleanExtra(FROM_LOGIN_SCREEN_MENU_ITEM_KEY, false));
     if (!loggedIn && !alreadyIgnoredLandingAsk || getIntent().getBooleanExtra(
       FROM_LOGIN_SCREEN_MENU_ITEM_KEY, false)) {
-      setContentView(R.layout.activity_landing);
-      getSupportActionBar().hide();
-      buildAccountAuthUrl();
-      setUpButtons();
+      Log.d(TAG, "onCreate: !loggedIn && !alreadyIgnoredLandingAsk || getIntent().getBooleanExtra(\n" +
+      "      FROM_LOGIN_SCREEN_MENU_ITEM_KEY, false)");
+    setContentView(R.layout.activity_landing);
+    getSupportActionBar().hide();
+    buildAccountAuthUrl();
+    setUpButtons();
     } else {
+      Log.d(TAG, "onCreate: go straight to MainActivity");
+
       Intent intent = new Intent(this, MainActivity.class);
       startActivity(intent);
     }
@@ -124,12 +136,14 @@ public class LandingActivity extends AppCompatActivity {
         loggedIn);
     });
 
-    findViewById(R.id.do_not_show_again_button).setOnClickListener(view -> {
-      PreferenceManager.getDefaultSharedPreferences(
-        getApplicationContext()).edit().putBoolean(LOGIN_SIGNIN_IGNORE_KEY, true).apply();
-      analytics.trackEvent(CLICKED_ON_DO_NOT_ASK_AGAIN_BUTTON,
-        loggedIn);
-      goToMainActivity();
+    CheckBox checkBox = findViewById(R.id.do_not_show_again_checkbox);
+    checkBox.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+      if (isChecked) {
+        PreferenceManager.getDefaultSharedPreferences(
+          getApplicationContext()).edit().putBoolean(LOGIN_SIGNIN_IGNORE_KEY, true).apply();
+//        analytics.trackEvent(CLICKED_ON_DO_NOT_ASK_AGAIN_BUTTON, loggedIn);
+        goToMainActivity();
+      }
     });
   }
 
